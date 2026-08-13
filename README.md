@@ -48,8 +48,8 @@ No installation or node setup required! Simply open the project in any browser.
 
 ### Option 1: Clone Repository
 ```bash
-git clone https://github.com/your-username/grocery-list-manager.git
-cd grocery-list-manager
+git clone https://github.com/Parambrata-Das/BlinkList.git
+cd BlinkList
 ```
 Then double-click or open `index.html` in your browser.
 
