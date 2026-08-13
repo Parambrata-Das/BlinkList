@@ -40,49 +40,63 @@ let customItems = JSON.parse(localStorage.getItem('blinklist_custom_items')) || 
 let activeCategory = 'all';
 let searchQuery = '';
 
-// 3. DOM Selectors
-const itemsGrid = document.getElementById('itemsGrid');
-const cartItemsList = document.getElementById('cartItemsList');
-const emptyCartState = document.getElementById('emptyCartState');
-const cartCountBadge = document.getElementById('cartCountBadge');
-const searchInput = document.getElementById('searchInput');
-const categoryPills = document.getElementById('categoryPills');
+// 3. DOM Elements Cache
+let itemsGrid, cartItemsList, cartCountBadge, searchInput, categoryPills;
+let subtotalVal, cgstVal, sgstVal, totalGstVal, handlingFeeVal, deliveryFeeVal, grandTotalVal;
+let slabChipsContainer, deliveryProgressBar, deliveryProgressText, deliveryBadge;
+let openCustomModalBtn, customItemModal, closeModalBtn, cancelModalBtn, customItemForm;
+let clearCartBtn, viewReceiptBtn, checkoutReceiptBtn, receiptModal, closeReceiptBtn, printReceiptBtn;
 
-// Bill Summary DOMs
-const subtotalVal = document.getElementById('subtotalVal');
-const cgstVal = document.getElementById('cgstVal');
-const sgstVal = document.getElementById('sgstVal');
-const totalGstVal = document.getElementById('totalGstVal');
-const handlingFeeVal = document.getElementById('handlingFeeVal');
-const deliveryFeeVal = document.getElementById('deliveryFeeVal');
-const grandTotalVal = document.getElementById('grandTotalVal');
-const slabChipsContainer = document.getElementById('slabChipsContainer');
-const deliveryProgressBar = document.getElementById('deliveryProgressBar');
-const deliveryProgressText = document.getElementById('deliveryProgressText');
-
-// Buttons & Modals
-const openCustomModalBtn = document.getElementById('openCustomModalBtn');
-const customItemModal = document.getElementById('customItemModal');
-const closeModalBtn = document.getElementById('closeModalBtn');
-const cancelModalBtn = document.getElementById('cancelModalBtn');
-const customItemForm = document.getElementById('customItemForm');
-
-const clearCartBtn = document.getElementById('clearCartBtn');
-const viewReceiptBtn = document.getElementById('viewReceiptBtn');
-const checkoutReceiptBtn = document.getElementById('checkoutReceiptBtn');
-const receiptModal = document.getElementById('receiptModal');
-const closeReceiptBtn = document.getElementById('closeReceiptBtn');
-const printReceiptBtn = document.getElementById('printReceiptBtn');
-
-// 4. Initialize Application
-document.addEventListener('DOMContentLoaded', () => {
+// 4. Initialization Guard (Guarantees script attaches regardless of DOM load timing)
+function initApp() {
+  cacheDOMElements();
   renderCatalog();
   renderCart();
   setupEventListeners();
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
+
+function cacheDOMElements() {
+  itemsGrid = document.getElementById('itemsGrid');
+  cartItemsList = document.getElementById('cartItemsList');
+  cartCountBadge = document.getElementById('cartCountBadge');
+  searchInput = document.getElementById('searchInput');
+  categoryPills = document.getElementById('categoryPills');
+
+  subtotalVal = document.getElementById('subtotalVal');
+  cgstVal = document.getElementById('cgstVal');
+  sgstVal = document.getElementById('sgstVal');
+  totalGstVal = document.getElementById('totalGstVal');
+  handlingFeeVal = document.getElementById('handlingFeeVal');
+  deliveryFeeVal = document.getElementById('deliveryFeeVal');
+  grandTotalVal = document.getElementById('grandTotalVal');
+  slabChipsContainer = document.getElementById('slabChipsContainer');
+  deliveryProgressBar = document.getElementById('deliveryProgressBar');
+  deliveryProgressText = document.getElementById('deliveryProgressText');
+  deliveryBadge = document.getElementById('deliveryBadge');
+
+  openCustomModalBtn = document.getElementById('openCustomModalBtn');
+  customItemModal = document.getElementById('customItemModal');
+  closeModalBtn = document.getElementById('closeModalBtn');
+  cancelModalBtn = document.getElementById('cancelModalBtn');
+  customItemForm = document.getElementById('customItemForm');
+
+  clearCartBtn = document.getElementById('clearCartBtn');
+  viewReceiptBtn = document.getElementById('viewReceiptBtn');
+  checkoutReceiptBtn = document.getElementById('checkoutReceiptBtn');
+  receiptModal = document.getElementById('receiptModal');
+  closeReceiptBtn = document.getElementById('closeReceiptBtn');
+  printReceiptBtn = document.getElementById('printReceiptBtn');
+}
 
 // 5. Render Catalog Grid
 function renderCatalog() {
+  if (!itemsGrid) return;
   const allAvailableItems = [...PRESET_CATALOG, ...customItems];
   
   const filtered = allAvailableItems.filter(item => {
@@ -96,7 +110,7 @@ function renderCatalog() {
     itemsGrid.innerHTML = `
       <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
         <div style="font-size: 2rem; margin-bottom: 8px;">🔍</div>
-        <p>No items match your search "${searchQuery}"</p>
+        <p>No items match your search "${escapeHtml(searchQuery)}"</p>
       </div>
     `;
     return;
@@ -185,6 +199,8 @@ function saveCart() {
 
 // 7. Render Active Grocery Cart & Live Tax Calculation
 function renderCart() {
+  if (!cartCountBadge || !cartItemsList) return;
+
   const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
   cartCountBadge.textContent = `${totalCount} item${totalCount === 1 ? '' : 's'}`;
 
@@ -200,17 +216,17 @@ function renderCart() {
         <p>Add items from the catalog or create custom items with GST rates!</p>
       </div>
     `;
-    updateBillTotals(0, 0, 0, {});
+    updateBillTotals(0, 0, 0, 0, {});
     return;
   }
 
-  // Render Cart Item Rows
+  // Render Cart Item Rows (with truncated wrapper to prevent overlapping)
   cartItemsList.innerHTML = cart.map(item => `
     <div class="cart-item-row">
       <div class="cart-item-info">
         <span class="cart-item-emoji">${item.emoji || '📦'}</span>
-        <div>
-          <div class="cart-item-name">${escapeHtml(item.name)}</div>
+        <div class="cart-item-text-wrapper">
+          <span class="cart-item-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>
           <span class="cart-item-tax-badge">₹${item.price} • GST ${item.gstRate}%</span>
         </div>
       </div>
@@ -222,7 +238,7 @@ function renderCart() {
         </div>
         <span class="cart-item-total">₹${(item.price * item.qty).toFixed(2)}</span>
         <button class="btn-remove-item" onclick="removeItem('${item.id}')" title="Delete item">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="3 6 5 6 21 6"></polyline>
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
           </svg>
@@ -232,17 +248,11 @@ function renderCart() {
   `).join('');
 
   // Indian GST Calculation Engine
-  // Consumer price (P) is GST inclusive: P_total = Base_Price + GST
-  // Taxable Base Value = P_total / (1 + (GstRate / 100))
-  // GST Amount = P_total - Taxable Base Value
-  // CGST = GST Amount / 2
-  // SGST = GST Amount / 2
-
   let grossTotal = 0;
   let taxableSubtotal = 0;
   let totalCgst = 0;
   let totalSgst = 0;
-  let slabBreakdown = {}; // { '5%': totalTax, '12%': totalTax, ... }
+  let slabBreakdown = {};
 
   cart.forEach(item => {
     const itemGross = item.price * item.qty;
@@ -266,7 +276,7 @@ function renderCart() {
   updateBillTotals(grossTotal, taxableSubtotal, totalCgst, totalSgst, slabBreakdown);
 }
 
-// 8. Update Bill Totals & Delivery Fee Progress Bar
+// 8. Update Bill Totals & Reset Delivery Fee Progress Bar cleanly
 function updateBillTotals(grossTotal, taxableSubtotal, totalCgst, totalSgst, slabBreakdown) {
   const totalGst = totalCgst + totalSgst;
   const handlingFee = cart.length > 0 ? 5 : 0;
@@ -275,102 +285,141 @@ function updateBillTotals(grossTotal, taxableSubtotal, totalCgst, totalSgst, sla
   const grandTotal = grossTotal + handlingFee + deliveryFee;
 
   // Update UI Elements
-  subtotalVal.textContent = `₹${taxableSubtotal.toFixed(2)}`;
-  cgstVal.textContent = `₹${totalCgst.toFixed(2)}`;
-  sgstVal.textContent = `₹${totalSgst.toFixed(2)}`;
-  totalGstVal.textContent = `₹${totalGst.toFixed(2)}`;
-  handlingFeeVal.textContent = `₹${handlingFee.toFixed(2)}`;
-  deliveryFeeVal.textContent = deliveryFee === 0 ? (cart.length > 0 ? 'FREE' : '₹0.00') : `₹${deliveryFee.toFixed(2)}`;
-  grandTotalVal.textContent = `₹${grandTotal.toFixed(2)}`;
+  if (subtotalVal) subtotalVal.textContent = `₹${taxableSubtotal.toFixed(2)}`;
+  if (cgstVal) cgstVal.textContent = `₹${totalCgst.toFixed(2)}`;
+  if (sgstVal) sgstVal.textContent = `₹${totalSgst.toFixed(2)}`;
+  if (totalGstVal) totalGstVal.textContent = `₹${totalGst.toFixed(2)}`;
+  if (handlingFeeVal) handlingFeeVal.textContent = `₹${handlingFee.toFixed(2)}`;
+  if (deliveryFeeVal) deliveryFeeVal.textContent = deliveryFee === 0 ? (cart.length > 0 ? 'FREE' : '₹0.00') : `₹${deliveryFee.toFixed(2)}`;
+  if (grandTotalVal) grandTotalVal.textContent = `₹${grandTotal.toFixed(2)}`;
 
   // Render GST Slab Chips
-  if (Object.keys(slabBreakdown).length > 0) {
-    slabChipsContainer.innerHTML = Object.entries(slabBreakdown).map(([rate, amt]) => `
-      <span class="slab-chip">${rate}% Slab: ₹${amt.toFixed(2)}</span>
-    `).join('');
-  } else {
-    slabChipsContainer.innerHTML = `<span class="slab-chip">All items 0% GST (Exempt)</span>`;
+  if (slabChipsContainer) {
+    if (Object.keys(slabBreakdown).length > 0) {
+      slabChipsContainer.innerHTML = Object.entries(slabBreakdown).map(([rate, amt]) => `
+        <span class="slab-chip">${rate}% Slab: ₹${amt.toFixed(2)}</span>
+      `).join('');
+    } else {
+      slabChipsContainer.innerHTML = `<span class="slab-chip">All items 0% GST (Exempt)</span>`;
+    }
   }
 
-  // Delivery Progress Bar logic
-  if (grossTotal >= freeDeliveryThreshold) {
-    deliveryProgressBar.style.width = '100%';
-    deliveryProgressText.textContent = '🎉 You unlocked FREE Delivery!';
-  } else {
-    const diff = freeDeliveryThreshold - grossTotal;
-    const percentage = Math.min(100, (grossTotal / freeDeliveryThreshold) * 100);
-    deliveryProgressBar.style.width = `${percentage}%`;
-    deliveryProgressText.textContent = `Add ₹${diff.toFixed(2)} more for FREE Delivery!`;
+  // Delivery Progress Bar Logic (FIXES BUG 2: Resets bar on clear items)
+  if (deliveryProgressBar && deliveryProgressText && deliveryBadge) {
+    if (cart.length === 0 || grossTotal === 0) {
+      deliveryProgressBar.style.width = '0%';
+      deliveryProgressText.textContent = 'Add items to get FREE Delivery!';
+      deliveryBadge.textContent = 'Target: ₹199';
+    } else if (grossTotal >= freeDeliveryThreshold) {
+      deliveryProgressBar.style.width = '100%';
+      deliveryProgressText.textContent = '🎉 You unlocked FREE Delivery!';
+      deliveryBadge.textContent = 'UNLOCKED';
+    } else {
+      const diff = freeDeliveryThreshold - grossTotal;
+      const percentage = Math.min(100, (grossTotal / freeDeliveryThreshold) * 100);
+      deliveryProgressBar.style.width = `${percentage}%`;
+      deliveryProgressText.textContent = `Add ₹${diff.toFixed(2)} more for FREE Delivery!`;
+      deliveryBadge.textContent = `Target: ₹199`;
+    }
   }
 }
 
-// 9. Event Listeners Setup
+// 9. Event Listeners Setup (Guarantees top buttons work every time)
 function setupEventListeners() {
-  // Search Input
-  searchInput.addEventListener('input', (e) => {
-    searchQuery = e.target.value;
-    renderCatalog();
-  });
-
-  // Category Filter Pills
-  categoryPills.addEventListener('click', (e) => {
-    if (e.target.classList.contains('pill')) {
-      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-      e.target.classList.add('active');
-      activeCategory = e.target.dataset.category;
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value;
       renderCatalog();
-    }
-  });
+    });
+  }
 
-  // Custom Item Modal
-  openCustomModalBtn.addEventListener('click', () => customItemModal.showModal());
-  closeModalBtn.addEventListener('click', () => customItemModal.close());
-  cancelModalBtn.addEventListener('click', () => customItemModal.close());
+  if (categoryPills) {
+    categoryPills.addEventListener('click', (e) => {
+      if (e.target.classList.contains('pill')) {
+        document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+        e.target.classList.add('active');
+        activeCategory = e.target.dataset.category;
+        renderCatalog();
+      }
+    });
+  }
 
-  customItemForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const name = document.getElementById('itemName').value.trim();
-    const price = parseFloat(document.getElementById('itemPrice').value);
-    const unit = document.getElementById('itemUnit').value.trim();
-    const category = document.getElementById('itemCategory').value;
-    const gstRate = parseFloat(document.getElementById('itemGst').value);
-
-    if (!name || isNaN(price) || price <= 0 || !unit) return;
-
-    const newItem = {
-      id: 'custom_' + Date.now(),
-      name,
-      price,
-      unit,
-      category,
-      gstRate,
-      emoji: '✨'
+  // Top Action Buttons (FIXES BUG 1)
+  if (openCustomModalBtn && customItemModal) {
+    openCustomModalBtn.onclick = () => {
+      if (typeof customItemModal.showModal === 'function') {
+        customItemModal.showModal();
+      } else {
+        customItemModal.setAttribute('open', '');
+      }
     };
+  }
 
-    customItems.push(newItem);
-    localStorage.setItem('blinklist_custom_items', JSON.stringify(customItems));
+  if (closeModalBtn && customItemModal) {
+    closeModalBtn.onclick = () => closeModal();
+  }
 
-    // Auto add to cart
-    addItemToCart(newItem.id);
+  if (cancelModalBtn && customItemModal) {
+    cancelModalBtn.onclick = () => closeModal();
+  }
 
-    // Reset & Close
-    customItemForm.reset();
-    customItemModal.close();
-  });
+  function closeModal() {
+    if (typeof customItemModal.close === 'function') {
+      customItemModal.close();
+    } else {
+      customItemModal.removeAttribute('open');
+    }
+  }
 
-  // Clear Cart
-  clearCartBtn.addEventListener('click', clearCart);
+  if (customItemForm) {
+    customItemForm.onsubmit = (e) => {
+      e.preventDefault();
+      const name = document.getElementById('itemName').value.trim();
+      const price = parseFloat(document.getElementById('itemPrice').value);
+      const unit = document.getElementById('itemUnit').value.trim();
+      const category = document.getElementById('itemCategory').value;
+      const gstRate = parseFloat(document.getElementById('itemGst').value);
+
+      if (!name || isNaN(price) || price <= 0 || !unit) return;
+
+      const newItem = {
+        id: 'custom_' + Date.now(),
+        name,
+        price,
+        unit,
+        category,
+        gstRate,
+        emoji: '✨'
+      };
+
+      customItems.push(newItem);
+      localStorage.setItem('blinklist_custom_items', JSON.stringify(customItems));
+
+      addItemToCart(newItem.id);
+      customItemForm.reset();
+      closeModal();
+    };
+  }
+
+  if (clearCartBtn) {
+    clearCartBtn.onclick = () => clearCart();
+  }
 
   // Receipt Modal Actions
-  viewReceiptBtn.addEventListener('click', openReceiptModal);
-  checkoutReceiptBtn.addEventListener('click', openReceiptModal);
-  closeReceiptBtn.addEventListener('click', () => receiptModal.close());
-  printReceiptBtn.addEventListener('click', () => window.print());
+  if (viewReceiptBtn) viewReceiptBtn.onclick = openReceiptModal;
+  if (checkoutReceiptBtn) checkoutReceiptBtn.onclick = openReceiptModal;
+  if (closeReceiptBtn && receiptModal) {
+    closeReceiptBtn.onclick = () => {
+      if (typeof receiptModal.close === 'function') receiptModal.close();
+      else receiptModal.removeAttribute('open');
+    };
+  }
+  if (printReceiptBtn) printReceiptBtn.onclick = () => window.print();
 }
 
 // 10. Generate Printable GST Invoice Receipt
 function openReceiptModal() {
-  if (cart.length === 0) return;
+  if (cart.length === 0 || !receiptModal) return;
 
   const now = new Date();
   document.getElementById('invDate').textContent = now.toLocaleDateString('en-IN', {
@@ -384,50 +433,56 @@ function openReceiptModal() {
   let grossTotal = 0;
 
   const tableBody = document.getElementById('invoiceTableBody');
-  tableBody.innerHTML = cart.map((item, index) => {
-    const itemGross = item.price * item.qty;
-    const rate = item.gstRate || 0;
-    const taxableBase = itemGross / (1 + (rate / 100));
-    const gstAmt = itemGross - taxableBase;
-    const cgst = gstAmt / 2;
-    const sgst = gstAmt / 2;
+  if (tableBody) {
+    tableBody.innerHTML = cart.map((item, index) => {
+      const itemGross = item.price * item.qty;
+      const rate = item.gstRate || 0;
+      const taxableBase = itemGross / (1 + (rate / 100));
+      const gstAmt = itemGross - taxableBase;
+      const cgst = gstAmt / 2;
+      const sgst = gstAmt / 2;
 
-    invSubtotal += taxableBase;
-    invCgst += cgst;
-    invSgst += sgst;
-    grossTotal += itemGross;
+      invSubtotal += taxableBase;
+      invCgst += cgst;
+      invSgst += sgst;
+      grossTotal += itemGross;
 
-    return `
-      <tr>
-        <td>${index + 1}</td>
-        <td><strong>${escapeHtml(item.name)}</strong> (${escapeHtml(item.unit)})</td>
-        <td class="text-center">${item.qty}</td>
-        <td class="text-right">₹${item.price.toFixed(2)}</td>
-        <td class="text-center">${rate}%</td>
-        <td class="text-right">₹${cgst.toFixed(2)} (${(rate/2)}%)</td>
-        <td class="text-right">₹${sgst.toFixed(2)} (${(rate/2)}%)</td>
-        <td class="text-right"><strong>₹${itemGross.toFixed(2)}</strong></td>
-      </tr>
-    `;
-  }).join('');
+      return `
+        <tr>
+          <td>${index + 1}</td>
+          <td><strong>${escapeHtml(item.name)}</strong> (${escapeHtml(item.unit)})</td>
+          <td class="text-center">${item.qty}</td>
+          <td class="text-right">₹${item.price.toFixed(2)}</td>
+          <td class="text-center">${rate}%</td>
+          <td class="text-right">₹${cgst.toFixed(2)} (${(rate/2)}%)</td>
+          <td class="text-right">₹${sgst.toFixed(2)} (${(rate/2)}%)</td>
+          <td class="text-right"><strong>₹${itemGross.toFixed(2)}</strong></td>
+        </tr>
+      `;
+    }).join('');
+  }
 
   const handlingFee = 5;
   const deliveryFee = grossTotal >= 199 ? 0 : 29;
   const totalExtraCharges = handlingFee + deliveryFee;
   const grandTotal = grossTotal + totalExtraCharges;
 
-  document.getElementById('invSubtotal').textContent = `₹${invSubtotal.toFixed(2)}`;
-  document.getElementById('invCgst').textContent = `₹${invCgst.toFixed(2)}`;
-  document.getElementById('invSgst').textContent = `₹${invSgst.toFixed(2)}`;
-  document.getElementById('invCharges').textContent = `₹${totalExtraCharges.toFixed(2)} (Delivery: ₹${deliveryFee}, Handling: ₹${handlingFee})`;
-  document.getElementById('invGrandTotal').textContent = `₹${grandTotal.toFixed(2)}`;
+  if (document.getElementById('invSubtotal')) document.getElementById('invSubtotal').textContent = `₹${invSubtotal.toFixed(2)}`;
+  if (document.getElementById('invCgst')) document.getElementById('invCgst').textContent = `₹${invCgst.toFixed(2)}`;
+  if (document.getElementById('invSgst')) document.getElementById('invSgst').textContent = `₹${invSgst.toFixed(2)}`;
+  if (document.getElementById('invCharges')) document.getElementById('invCharges').textContent = `₹${totalExtraCharges.toFixed(2)} (Delivery: ₹${deliveryFee}, Handling: ₹${handlingFee})`;
+  if (document.getElementById('invGrandTotal')) document.getElementById('invGrandTotal').textContent = `₹${invGrandTotal.toFixed(2)}`;
 
-  receiptModal.showModal();
+  if (typeof receiptModal.showModal === 'function') {
+    receiptModal.showModal();
+  } else {
+    receiptModal.setAttribute('open', '');
+  }
 }
 
 // Utility: Escape HTML
 function escapeHtml(str) {
-  return str.replace(/[&<>"']/g, match => {
+  return String(str).replace(/[&<>"']/g, match => {
     const escapeMap = {
       '&': '&amp;',
       '<': '&lt;',
