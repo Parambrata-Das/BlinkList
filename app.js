@@ -45,11 +45,14 @@ let itemsGrid, cartItemsList, cartCountBadge, searchInput, categoryPills;
 let subtotalVal, cgstVal, sgstVal, totalGstVal, handlingFeeVal, deliveryFeeVal, grandTotalVal;
 let slabChipsContainer, deliveryProgressBar, deliveryProgressText, deliveryBadge;
 let openCustomModalBtn, customItemModal, closeModalBtn, cancelModalBtn, customItemForm;
-let clearCartBtn, viewReceiptBtn, checkoutReceiptBtn, receiptModal, closeReceiptBtn, printReceiptBtn;
+let clearCartBtn, confirmClearModal, cancelClearBtn, confirmClearBtn;
+let viewReceiptBtn, checkoutReceiptBtn, receiptModal, closeReceiptBtn, printReceiptBtn;
+let themeToggleBtn;
 
 // 4. Initialization Guard
 function initApp() {
   cacheDOMElements();
+  initTheme();
   renderCatalog();
   renderCart();
   setupEventListeners();
@@ -87,11 +90,43 @@ function cacheDOMElements() {
   customItemForm = document.getElementById('customItemForm');
 
   clearCartBtn = document.getElementById('clearCartBtn');
+  confirmClearModal = document.getElementById('confirmClearModal');
+  cancelClearBtn = document.getElementById('cancelClearBtn');
+  confirmClearBtn = document.getElementById('confirmClearBtn');
+
   viewReceiptBtn = document.getElementById('viewReceiptBtn');
   checkoutReceiptBtn = document.getElementById('checkoutReceiptBtn');
   receiptModal = document.getElementById('receiptModal');
   closeReceiptBtn = document.getElementById('closeReceiptBtn');
   printReceiptBtn = document.getElementById('printReceiptBtn');
+
+  themeToggleBtn = document.getElementById('themeToggleBtn');
+}
+
+// Theme (Light / Dark) Handling
+function initTheme() {
+  // The inline script in <head> already applied the saved theme (if light)
+  // before first paint, to avoid a flash of the wrong theme. Here we just
+  // sync state and wire up the toggle.
+  var savedTheme = localStorage.getItem('blinklist_theme') || 'dark';
+  applyTheme(savedTheme, false);
+}
+
+function applyTheme(theme, persist) {
+  if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
+  if (persist) {
+    localStorage.setItem('blinklist_theme', theme);
+  }
+}
+
+function toggleTheme() {
+  var current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  var next = current === 'light' ? 'dark' : 'light';
+  applyTheme(next, true);
 }
 
 // 5. Render Catalog Grid
@@ -184,14 +219,11 @@ function removeItem(itemId) {
   renderCart();
 }
 
-function clearCart() {
-  if (cart.length === 0) return;
-  if (confirm('Are you sure you want to clear your grocery list?')) {
-    cart = [];
-    saveCart();
-    renderCatalog();
-    renderCart();
-  }
+function executeClearCart() {
+  cart = [];
+  saveCart();
+  renderCatalog();
+  renderCart();
 }
 
 function saveCart() {
@@ -329,6 +361,10 @@ function updateBillTotals(grossTotal, taxableSubtotal, totalCgst, totalSgst, sla
 
 // 9. Event Listeners Setup
 function setupEventListeners() {
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', toggleTheme);
+  }
+
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
       searchQuery = e.target.value;
@@ -347,7 +383,7 @@ function setupEventListeners() {
     });
   }
 
-  // Top Action Buttons
+  // Custom Add Item Modal
   if (openCustomModalBtn && customItemModal) {
     openCustomModalBtn.onclick = () => {
       if (typeof customItemModal.showModal === 'function') {
@@ -359,14 +395,14 @@ function setupEventListeners() {
   }
 
   if (closeModalBtn && customItemModal) {
-    closeModalBtn.onclick = () => closeModal();
+    closeModalBtn.onclick = () => closeCustomModal();
   }
 
   if (cancelModalBtn && customItemModal) {
-    cancelModalBtn.onclick = () => closeModal();
+    cancelModalBtn.onclick = () => closeCustomModal();
   }
 
-  function closeModal() {
+  function closeCustomModal() {
     if (typeof customItemModal.close === 'function') {
       customItemModal.close();
     } else {
@@ -400,12 +436,89 @@ function setupEventListeners() {
 
       addItemToCart(newItem.id);
       customItemForm.reset();
-      closeModal();
+      closeCustomModal();
     };
   }
 
-  if (clearCartBtn) {
-    clearCartBtn.onclick = () => clearCart();
+  // Clear Cart Theme-Matching Confirmation Modal
+  if (clearCartBtn && confirmClearModal) {
+    clearCartBtn.onclick = () => {
+      if (cart.length === 0) return;
+      // Use showModal if available, otherwise manually show
+      if (typeof confirmClearModal.showModal === 'function') {
+        try {
+          confirmClearModal.showModal();
+        } catch (e) {
+          confirmClearModal.setAttribute('open', '');
+          confirmClearModal.classList.add('modal-visible');
+        }
+      } else {
+        confirmClearModal.setAttribute('open', '');
+        confirmClearModal.classList.add('modal-visible');
+      }
+    };
+  } else if (clearCartBtn) {
+    // Fallback: if the dialog element wasn't found, use a JS-created modal
+    clearCartBtn.onclick = () => {
+      if (cart.length === 0) return;
+      showFallbackClearConfirm();
+    };
+  }
+
+  if (cancelClearBtn) {
+    cancelClearBtn.onclick = () => closeConfirmModal();
+  }
+
+  if (confirmClearBtn) {
+    confirmClearBtn.onclick = () => {
+      executeClearCart();
+      closeConfirmModal();
+    };
+  }
+
+  function closeConfirmModal() {
+    if (!confirmClearModal) return;
+    if (typeof confirmClearModal.close === 'function') {
+      try { confirmClearModal.close(); } catch(e) {}
+    }
+    confirmClearModal.removeAttribute('open');
+    confirmClearModal.classList.remove('modal-visible');
+  }
+
+  // Ultimate fallback: create modal entirely via JS if <dialog> doesn't exist
+  function showFallbackClearConfirm() {
+    const overlay = document.createElement('div');
+    overlay.className = 'fallback-overlay';
+    overlay.innerHTML = `
+      <div class="confirm-modal-content">
+        <div class="confirm-icon-box">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            <line x1="10" y1="11" x2="10" y2="17"></line>
+            <line x1="14" y1="11" x2="14" y2="17"></line>
+          </svg>
+        </div>
+        <h3 class="confirm-title">Clear Grocery List?</h3>
+        <p class="confirm-message">Are you sure you want to remove all items from your list? This action will reset your cart total.</p>
+        <div class="confirm-actions">
+          <button class="btn btn-secondary" id="fallbackCancel">Cancel</button>
+          <button class="btn btn-danger" id="fallbackConfirm">Yes, Clear List</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    
+    overlay.querySelector('#fallbackCancel').onclick = () => {
+      overlay.remove();
+    };
+    overlay.querySelector('#fallbackConfirm').onclick = () => {
+      executeClearCart();
+      overlay.remove();
+    };
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) overlay.remove();
+    });
   }
 
   // Receipt Modal Actions
