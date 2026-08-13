@@ -1,33 +1,33 @@
 // BlinkList Master Application Logic & GST Engine
 
-// 1. Initial Catalog Data with Realistic Indian GST Rates
+// 1. Initial Catalog Data with Realistic Indian GST Rates for EVERY Item
 const PRESET_CATALOG = [
   // Dairy & Bakery
   { id: 'd1', name: 'Amul Taaza T-Special Milk', unit: '1 Litre', price: 33, category: 'Dairy & Bakery', emoji: '🥛', gstRate: 5 },
   { id: 'd2', name: 'Amul Fresh Paneer', unit: '200g', price: 95, category: 'Dairy & Bakery', emoji: '🧀', gstRate: 5 },
   { id: 'd3', name: 'Mother Dairy Fresh Dahi', unit: '400g', price: 35, category: 'Dairy & Bakery', emoji: '🥣', gstRate: 5 },
-  { id: 'd4', name: 'English Oven Brown Bread', unit: '400g', price: 50, category: 'Dairy & Bakery', emoji: '🍞', gstRate: 0 },
+  { id: 'd4', name: 'English Oven Brown Bread', unit: '400g', price: 50, category: 'Dairy & Bakery', emoji: '🍞', gstRate: 5 },
   { id: 'd5', name: 'Amul Salted Butter', unit: '100g', price: 60, category: 'Dairy & Bakery', emoji: '🧈', gstRate: 12 },
 
-  // Veggies & Fruits
+  // Veggies & Fruits (0% GST Exempt Staples)
   { id: 'v1', name: 'Fresh Hybrid Tomatoes', unit: '1 kg', price: 32, category: 'Vegetables & Fruits', emoji: '🍅', gstRate: 0 },
   { id: 'v2', name: 'Fresh Red Onions', unit: '1 kg', price: 28, category: 'Vegetables & Fruits', emoji: '🧅', gstRate: 0 },
   { id: 'v3', name: 'New Crop Potatoes', unit: '1 kg', price: 25, category: 'Vegetables & Fruits', emoji: '🥔', gstRate: 0 },
   { id: 'v4', name: 'Robusta Bananas', unit: '6 Pcs', price: 40, category: 'Vegetables & Fruits', emoji: '🍌', gstRate: 0 },
   { id: 'v5', name: 'Fresh Palak (Spinach)', unit: '250g', price: 20, category: 'Vegetables & Fruits', emoji: '🥬', gstRate: 0 },
 
-  // Atta, Rice & Dal
+  // Atta, Rice & Dal (Branded Staples 5% GST)
   { id: 'a1', name: 'Aashirvaad Shudh Chakki Atta', unit: '5 kg', price: 240, category: 'Atta, Rice & Dal', emoji: '🌾', gstRate: 5 },
   { id: 'a2', name: 'Fortune Everyday Basmati Rice', unit: '1 kg', price: 110, category: 'Atta, Rice & Dal', emoji: '🍚', gstRate: 5 },
-  { id: 'a3', name: 'Unpolished Toor Dal', unit: '1 kg', price: 160, category: 'Atta, Rice & Dal', emoji: '🫘', gstRate: 0 },
+  { id: 'a3', name: 'Unpolished Toor Dal', unit: '1 kg', price: 160, category: 'Atta, Rice & Dal', emoji: '🫘', gstRate: 5 },
   { id: 'a4', name: 'Tata Iodized Salt', unit: '1 kg', price: 28, category: 'Atta, Rice & Dal', emoji: '🧂', gstRate: 5 },
 
-  // Oil & Spices
+  // Oil & Spices (5% GST)
   { id: 'o1', name: 'Fortune Kachi Ghani Mustard Oil', unit: '1 Litre', price: 145, category: 'Oil, Masala & Spices', emoji: '🧴', gstRate: 5 },
   { id: 'o2', name: 'MDH Deggi Mirch Powder', unit: '100g', price: 85, category: 'Oil, Masala & Spices', emoji: '🌶️', gstRate: 5 },
   { id: 'o3', name: 'Catch Haldi (Turmeric) Powder', unit: '100g', price: 45, category: 'Oil, Masala & Spices', emoji: '🧄', gstRate: 5 },
 
-  // Snacks & Drinks
+  // Snacks & Drinks (12% & 18% GST)
   { id: 's1', name: 'Maggi 2-Minute Masala Noodles', unit: '4 Pack (280g)', price: 56, category: 'Snacks & Drinks', emoji: '🍜', gstRate: 12 },
   { id: 's2', name: "Lay's India's Magic Masala Chips", unit: '50g', price: 20, category: 'Snacks & Drinks', emoji: '🥔', gstRate: 12 },
   { id: 's3', name: 'Cadbury Dairy Milk Silk', unit: '150g', price: 175, category: 'Snacks & Drinks', emoji: '🍫', gstRate: 18 },
@@ -47,7 +47,7 @@ let slabChipsContainer, deliveryProgressBar, deliveryProgressText, deliveryBadge
 let openCustomModalBtn, customItemModal, closeModalBtn, cancelModalBtn, customItemForm;
 let clearCartBtn, viewReceiptBtn, checkoutReceiptBtn, receiptModal, closeReceiptBtn, printReceiptBtn;
 
-// 4. Initialization Guard (Guarantees script attaches regardless of DOM load timing)
+// 4. Initialization Guard
 function initApp() {
   cacheDOMElements();
   renderCatalog();
@@ -119,10 +119,11 @@ function renderCatalog() {
   itemsGrid.innerHTML = filtered.map(item => {
     const cartItem = cart.find(c => c.id === item.id);
     const qty = cartItem ? cartItem.qty : 0;
+    const gstDisplay = item.gstRate === 0 ? '0% GST (Exempt)' : `${item.gstRate}% GST`;
 
     return `
       <div class="item-card" data-id="${item.id}">
-        <span class="gst-badge">${item.gstRate}% GST</span>
+        <span class="gst-badge">${gstDisplay}</span>
         <div class="item-emoji">${item.emoji || '🛍️'}</div>
         <div class="item-details">
           <h3 class="item-name">${escapeHtml(item.name)}</h3>
@@ -220,32 +221,35 @@ function renderCart() {
     return;
   }
 
-  // Render Cart Item Rows (with truncated wrapper to prevent overlapping)
-  cartItemsList.innerHTML = cart.map(item => `
-    <div class="cart-item-row">
-      <div class="cart-item-info">
-        <span class="cart-item-emoji">${item.emoji || '📦'}</span>
-        <div class="cart-item-text-wrapper">
-          <span class="cart-item-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>
-          <span class="cart-item-tax-badge">₹${item.price} • GST ${item.gstRate}%</span>
+  // Render Cart Item Rows with explicit GST tax rate indicator
+  cartItemsList.innerHTML = cart.map(item => {
+    const gstText = item.gstRate === 0 ? 'Exempt (0%)' : `GST ${item.gstRate}%`;
+    return `
+      <div class="cart-item-row">
+        <div class="cart-item-info">
+          <span class="cart-item-emoji">${item.emoji || '📦'}</span>
+          <div class="cart-item-text-wrapper">
+            <span class="cart-item-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>
+            <span class="cart-item-tax-badge">₹${item.price} • ${gstText}</span>
+          </div>
+        </div>
+        <div class="cart-item-actions">
+          <div class="stepper-control">
+            <button class="stepper-btn" onclick="updateQty('${item.id}', ${item.qty - 1})">-</button>
+            <span class="stepper-count">${item.qty}</span>
+            <button class="stepper-btn" onclick="updateQty('${item.id}', ${item.qty + 1})">+</button>
+          </div>
+          <span class="cart-item-total">₹${(item.price * item.qty).toFixed(2)}</span>
+          <button class="btn-remove-item" onclick="removeItem('${item.id}')" title="Delete item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+          </button>
         </div>
       </div>
-      <div class="cart-item-actions">
-        <div class="stepper-control">
-          <button class="stepper-btn" onclick="updateQty('${item.id}', ${item.qty - 1})">-</button>
-          <span class="stepper-count">${item.qty}</span>
-          <button class="stepper-btn" onclick="updateQty('${item.id}', ${item.qty + 1})">+</button>
-        </div>
-        <span class="cart-item-total">₹${(item.price * item.qty).toFixed(2)}</span>
-        <button class="btn-remove-item" onclick="removeItem('${item.id}')" title="Delete item">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="3 6 5 6 21 6"></polyline>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-          </svg>
-        </button>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
   // Indian GST Calculation Engine
   let grossTotal = 0;
@@ -256,7 +260,7 @@ function renderCart() {
 
   cart.forEach(item => {
     const itemGross = item.price * item.qty;
-    const rate = item.gstRate || 0;
+    const rate = item.gstRate !== undefined ? item.gstRate : 5;
     
     const taxableBase = itemGross / (1 + (rate / 100));
     const itemGstAmt = itemGross - taxableBase;
@@ -268,9 +272,7 @@ function renderCart() {
     totalCgst += itemCgst;
     totalSgst += itemSgst;
 
-    if (rate > 0) {
-      slabBreakdown[rate] = (slabBreakdown[rate] || 0) + itemGstAmt;
-    }
+    slabBreakdown[rate] = (slabBreakdown[rate] || 0) + itemGstAmt;
   });
 
   updateBillTotals(grossTotal, taxableSubtotal, totalCgst, totalSgst, slabBreakdown);
@@ -296,15 +298,16 @@ function updateBillTotals(grossTotal, taxableSubtotal, totalCgst, totalSgst, sla
   // Render GST Slab Chips
   if (slabChipsContainer) {
     if (Object.keys(slabBreakdown).length > 0) {
-      slabChipsContainer.innerHTML = Object.entries(slabBreakdown).map(([rate, amt]) => `
-        <span class="slab-chip">${rate}% Slab: ₹${amt.toFixed(2)}</span>
-      `).join('');
+      slabChipsContainer.innerHTML = Object.entries(slabBreakdown).map(([rate, amt]) => {
+        const rateLabel = rate === '0' ? '0% (Exempt)' : `${rate}% Slab`;
+        return `<span class="slab-chip">${rateLabel}: ₹${amt.toFixed(2)}</span>`;
+      }).join('');
     } else {
       slabChipsContainer.innerHTML = `<span class="slab-chip">All items 0% GST (Exempt)</span>`;
     }
   }
 
-  // Delivery Progress Bar Logic (FIXES BUG 2: Resets bar on clear items)
+  // Delivery Progress Bar Logic
   if (deliveryProgressBar && deliveryProgressText && deliveryBadge) {
     if (cart.length === 0 || grossTotal === 0) {
       deliveryProgressBar.style.width = '0%';
@@ -324,7 +327,7 @@ function updateBillTotals(grossTotal, taxableSubtotal, totalCgst, totalSgst, sla
   }
 }
 
-// 9. Event Listeners Setup (Guarantees top buttons work every time)
+// 9. Event Listeners Setup
 function setupEventListeners() {
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
@@ -344,7 +347,7 @@ function setupEventListeners() {
     });
   }
 
-  // Top Action Buttons (FIXES BUG 1)
+  // Top Action Buttons
   if (openCustomModalBtn && customItemModal) {
     openCustomModalBtn.onclick = () => {
       if (typeof customItemModal.showModal === 'function') {
@@ -388,7 +391,7 @@ function setupEventListeners() {
         price,
         unit,
         category,
-        gstRate,
+        gstRate: isNaN(gstRate) ? 5 : gstRate,
         emoji: '✨'
       };
 
@@ -436,7 +439,7 @@ function openReceiptModal() {
   if (tableBody) {
     tableBody.innerHTML = cart.map((item, index) => {
       const itemGross = item.price * item.qty;
-      const rate = item.gstRate || 0;
+      const rate = item.gstRate !== undefined ? item.gstRate : 5;
       const taxableBase = itemGross / (1 + (rate / 100));
       const gstAmt = itemGross - taxableBase;
       const cgst = gstAmt / 2;
@@ -447,13 +450,15 @@ function openReceiptModal() {
       invSgst += sgst;
       grossTotal += itemGross;
 
+      const rateDisplay = rate === 0 ? '0% (Exempt)' : `${rate}%`;
+
       return `
         <tr>
           <td>${index + 1}</td>
           <td><strong>${escapeHtml(item.name)}</strong> (${escapeHtml(item.unit)})</td>
           <td class="text-center">${item.qty}</td>
           <td class="text-right">₹${item.price.toFixed(2)}</td>
-          <td class="text-center">${rate}%</td>
+          <td class="text-center">${rateDisplay}</td>
           <td class="text-right">₹${cgst.toFixed(2)} (${(rate/2)}%)</td>
           <td class="text-right">₹${sgst.toFixed(2)} (${(rate/2)}%)</td>
           <td class="text-right"><strong>₹${itemGross.toFixed(2)}</strong></td>
