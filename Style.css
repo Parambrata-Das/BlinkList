@@ -32,6 +32,126 @@
   
   --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-bounce: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --gst-badge-text: #c084fc;
+  --row-soft-text: rgba(255, 255, 255, 0.7);
+}
+
+/* Light Theme Overrides */
+:root[data-theme="light"] {
+  --bg-primary: #f6f7fb;
+  --bg-secondary: #ffffff;
+  --bg-card: rgba(255, 255, 255, 0.9);
+  --bg-card-hover: rgba(255, 255, 255, 1);
+
+  --brand-yellow: #d69e05;
+  --brand-green: #059669;
+  --brand-green-glow: rgba(5, 150, 105, 0.18);
+  --brand-purple: #7c3aed;
+  --brand-pink: #db2777;
+
+  --text-main: #0f172a;
+  --text-muted: #5b6474;
+  --text-dark: #0f172a;
+
+  --border-color: rgba(15, 23, 42, 0.1);
+  --border-glow: rgba(214, 158, 5, 0.35);
+
+  --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-glow: 0 0 25px rgba(5, 150, 105, 0.12);
+  --shadow-yellow-glow: 0 0 20px rgba(214, 158, 5, 0.15);
+
+  --gst-badge-text: #7c3aed;
+  --row-soft-text: rgba(15, 23, 42, 0.65);
+}
+
+:root[data-theme="light"] body {
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
+}
+
+:root[data-theme="light"] .app-header {
+  background: rgba(246, 247, 251, 0.9);
+}
+
+:root[data-theme="light"] .location-badge,
+:root[data-theme="light"] .btn-secondary,
+:root[data-theme="light"] .search-input-wrapper input,
+:root[data-theme="light"] .pill,
+:root[data-theme="light"] .form-group input,
+:root[data-theme="light"] .form-group select {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+:root[data-theme="light"] .item-card,
+:root[data-theme="light"] .cart-card,
+:root[data-theme="light"] dialog {
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+}
+
+:root[data-theme="light"] .cart-item-row {
+  background: rgba(15, 23, 42, 0.02);
+}
+
+:root[data-theme="light"] .stepper-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+:root[data-theme="light"] .confirm-modal-content {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.99));
+}
+
+:root[data-theme="light"] .confirm-actions .btn-secondary {
+  background: rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+:root[data-theme="light"] .delivery-progress-card {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(139, 92, 246, 0.07));
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+:root[data-theme="light"] .progress-bar-bg {
+  background: rgba(15, 23, 42, 0.1);
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+:root[data-theme="light"] .theme-toggle-btn {
+  background: rgba(15, 23, 42, 0.05);
+}
+
+.theme-toggle-btn:hover {
+  border-color: var(--brand-yellow);
+  color: var(--brand-yellow);
+  transform: translateY(-1px);
+}
+
+.theme-toggle-btn .icon-sun {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-toggle-btn .icon-moon {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-toggle-btn .icon-sun {
+  display: block;
 }
 
 /* Reset & Global */
@@ -182,6 +302,17 @@ body {
 }
 .btn-accent:hover:not(:disabled) {
   filter: brightness(1.15);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  border: none;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+}
+.btn-danger:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
 }
 
 .btn-danger-outline {
@@ -371,7 +502,7 @@ body {
   top: 10px;
   right: 10px;
   background: rgba(139, 92, 246, 0.2);
-  color: #c084fc;
+  color: var(--gst-badge-text);
   border: 1px solid rgba(139, 92, 246, 0.4);
   font-size: 0.68rem;
   font-weight: 700;
@@ -470,7 +601,7 @@ body {
   font-size: 0.82rem;
 }
 
-/* Cart Section Sidebar (ENLARGED SCROLL AREA TO FIT 4 TO 5 ITEMS COMFORTABLY) */
+/* Cart Section Sidebar */
 .cart-section {
   position: relative;
 }
@@ -521,7 +652,7 @@ body {
   border-radius: var(--radius-full);
 }
 
-/* Cart Items List - Enlarged so 4 to 5 full items are visible before scrolling */
+/* Cart Items List */
 .cart-items-list {
   flex: 1 1 auto;
   min-height: 230px;
@@ -728,7 +859,7 @@ body {
 
 .bill-row.sub-row {
   font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--row-soft-text);
 }
 
 .slab-chips-container {
@@ -813,6 +944,21 @@ dialog {
   width: 90%;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85);
   z-index: 1000;
+}
+
+dialog[open] {
+  animation: modalFadeIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 dialog::backdrop {
@@ -1009,6 +1155,154 @@ dialog::backdrop {
   margin-top: 18px;
   font-size: 0.72rem;
   color: #94a3b8;
+}
+
+/* ===== Confirm Clear Modal ===== */
+
+/* Manual visibility fallback (for environments without showModal support) */
+.confirm-modal.modal-visible,
+dialog.confirm-modal[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* Fallback overlay for when <dialog> element is not available */
+.fallback-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: backdropFadeIn 0.3s ease-out;
+}
+
+.confirm-modal::backdrop {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: backdropFadeIn 0.3s ease-out;
+}
+
+.confirm-modal {
+  background: transparent;
+  border: none;
+  padding: 0;
+  max-width: 420px;
+  width: 90%;
+  overflow: visible;
+}
+
+.confirm-modal-content {
+  background: linear-gradient(135deg, rgba(19, 25, 36, 0.97), rgba(15, 20, 30, 0.99));
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 32px 28px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(239, 68, 68, 0.1);
+  animation: modalPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.confirm-icon-box {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px auto;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
+  border: 2px solid rgba(239, 68, 68, 0.35);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ef4444;
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.confirm-title {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.confirm-message {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 26px;
+  max-width: 320px;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  width: 100%;
+}
+
+.confirm-actions .btn {
+  flex: 1;
+  max-width: 160px;
+  padding: 12px 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+  justify-content: center;
+}
+
+.confirm-actions .btn-secondary {
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  color: var(--text-muted);
+}
+
+.confirm-actions .btn-secondary:hover {
+  background: rgba(148, 163, 184, 0.2);
+  color: var(--text-main);
+  transform: translateY(-1px);
+}
+
+/* Confirm Modal Keyframe Animations */
+@keyframes modalPopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.85) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes backdropFadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.2), 0 0 30px rgba(239, 68, 68, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.4), 0 0 50px rgba(239, 68, 68, 0.15);
+  }
 }
 
 /* Print Rules */
