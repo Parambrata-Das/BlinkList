@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel | BlinkList</title>
+  <meta name="description" content="BlinkList admin panel — manage the catalog and store operations." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS (Style.css holds shared variables/theme/buttons/logo/header/form-group; admin.css is this page's own styles) -->
+  <link rel="stylesheet" href="Style.css" />
+  <link rel="stylesheet" href="admin-pannel.css" />
+
+  <!-- Apply saved theme before first paint to avoid a flash of the wrong theme -->
+  <script>
+    (function () {
+      var savedTheme = localStorage.getItem('blinklist_theme');
+      if (savedTheme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+</head>
+<body>
+
+  <div id="adminScreen" class="admin-screen">
+
+    <!-- Header (reuses the same classes as the customer app header for a matching look) -->
+    <header class="app-header">
+      <div class="header-container">
+        <div class="brand-section">
+          <div class="logo-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+          </div>
+          <div>
+            <h1 class="brand-title">Blink<span>List</span></h1>
+            <p class="brand-tagline">🛡️ Admin Control Panel</p>
+          </div>
+        </div>
+
+        <div class="header-actions admin-header-actions">
+          <button id="adminThemeToggleBtn" class="theme-toggle-btn" title="Switch theme" aria-label="Toggle light and dark theme">
+            <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+            <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          </button>
+
+          <button id="openCustomModalBtn" class="btn btn-secondary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Custom Item
+          </button>
+
+          <div class="admin-menu-wrapper">
+            <button id="adminMenuBtn" class="admin-menu-btn" title="Menu" aria-label="Open admin menu" aria-expanded="false">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="7" x2="20" y2="7"></line>
+                <line x1="4" y1="12" x2="20" y2="12"></line>
+                <line x1="4" y1="17" x2="20" y2="17"></line>
+              </svg>
+            </button>
+
+            <div id="adminMenuDropdown" class="admin-menu-dropdown">
+              <button class="admin-menu-item" type="button">
+                <span class="admin-menu-icon">📊</span> Analytics
+              </button>
+              <button class="admin-menu-item" type="button">
+                <span class="admin-menu-icon">📡</span> Status
+              </button>
+              <button class="admin-menu-item" type="button">
+                <span class="admin-menu-icon">📦</span> Stock
+              </button>
+              <button class="admin-menu-item" type="button">
+                <span class="admin-menu-icon">🔄</span> Update
+              </button>
+              <button class="admin-menu-item" type="button">
+                <span class="admin-menu-icon">🤝</span> Partners
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div class="admin-welcome">
+        <h2>Admin Dashboard</h2>
+        <p>Manage your BlinkList catalog from here. Items you add show up for customers immediately.</p>
+      </div>
+
+      <section class="admin-custom-items-card">
+        <div class="admin-section-header">
+          <h3>Your Custom Items</h3>
+          <span class="admin-item-count-badge" id="adminItemCountBadge">0 items</span>
+        </div>
+
+        <div id="adminCustomItemsList" class="admin-custom-items-list">
+          <div class="admin-empty-state" id="adminEmptyState">
+            <div class="admin-empty-icon">📦</div>
+            <p>No custom items yet. Click "Add Custom Item" above to get started.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Add Custom Item Modal Dialog (writes to the same storage the customer app reads) -->
+  <dialog id="customItemModal" class="custom-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">✨ Add Custom Item</h3>
+        <button id="closeModalBtn" class="modal-close-btn">&times;</button>
+      </div>
+
+      <form id="customItemForm" class="custom-form">
+        <div class="form-group">
+          <label for="itemName">Item Name *</label>
+          <input type="text" id="itemName" required placeholder="e.g. Organic Brown Eggs / Desi Ghee" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="itemPrice">Price (₹) *</label>
+            <input type="number" id="itemPrice" required step="0.5" min="1" placeholder="e.g. 150" />
+          </div>
+
+          <div class="form-group">
+            <label for="itemUnit">Unit / Weight *</label>
+            <input type="text" id="itemUnit" required placeholder="e.g. 500g, 1L, 6 pcs" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="itemCategory">Category</label>
+            <select id="itemCategory">
+              <option value="Dairy & Bakery">🥛 Dairy & Bakery</option>
+              <option value="Vegetables & Fruits">🍅 Veggies & Fruits</option>
+              <option value="Atta, Rice & Dal">🌾 Atta, Rice & Dal</option>
+              <option value="Oil, Masala & Spices">🌶️ Oil & Spices</option>
+              <option value="Snacks & Drinks">🍿 Snacks & Drinks</option>
+              <option value="Custom" selected>🍷 Alcohol</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="itemGst">Indian GST Rate Slab *</label>
+            <select id="itemGst" required>
+              <option value="0">0% GST (Fresh Staples: Veggies, Milk, Eggs)</option>
+              <option value="5" selected>5% GST (Standard Staples: Paneer, Atta, Spices)</option>
+              <option value="12">12% GST (Processed Foods: Cheese, Butter, Juices)</option>
+              <option value="18">18% GST (Chocolates, Energy Drinks, Toiletries)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" id="cancelModalBtn" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Item</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- JS (admin page only) -->
+  <script src="admin-pannel.js"></script>
+</body>
+</html>
