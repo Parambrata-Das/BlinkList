@@ -1,0 +1,408 @@
+/* ============================================
+   BlinkList — Login Page Styles
+   Loaded only by login.html, in addition to
+   Style.css (for shared variables, fonts, the
+   logo, theme-toggle, buttons, and form-group
+   input styling — not redefined here).
+   ============================================ */
+
+.login-screen {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+  background-image:
+    radial-gradient(circle at 15% 15%, var(--brand-green-glow) 0%, transparent 55%),
+    radial-gradient(circle at 85% 85%, rgba(250, 204, 21, 0.2) 0%, transparent 55%);
+}
+
+:root[data-theme="light"] .login-screen {
+  background-image:
+    radial-gradient(circle at 15% 15%, var(--brand-green-glow) 0%, transparent 55%),
+    radial-gradient(circle at 85% 85%, rgba(214, 158, 5, 0.18) 0%, transparent 55%);
+}
+
+/* ---------- Animated background blobs ---------- */
+.login-bg-blobs {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.login-bg-blobs .blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.6;
+  will-change: transform;
+}
+
+.login-bg-blobs .blob-green {
+  width: 40vw;
+  height: 40vw;
+  max-width: 520px;
+  max-height: 520px;
+  top: -10%;
+  left: -8%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.4) 0%, transparent 70%);
+  animation: loginBlobA 18s ease-in-out infinite;
+}
+
+.login-bg-blobs .blob-yellow {
+  width: 34vw;
+  height: 34vw;
+  max-width: 460px;
+  max-height: 460px;
+  bottom: -12%;
+  right: -8%;
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.35) 0%, transparent 70%);
+  animation: loginBlobB 22s ease-in-out infinite;
+}
+
+:root[data-theme="light"] .login-bg-blobs .blob-yellow {
+  background: radial-gradient(circle, rgba(214, 158, 5, 0.28) 0%, transparent 70%);
+}
+
+@keyframes loginBlobA {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(5%, 5%) scale(1.08); }
+}
+
+@keyframes loginBlobB {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-4%, -5%) scale(1.06); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-bg-blobs .blob { animation: none; }
+}
+
+/* ---------- Top bar ---------- */
+.login-topbar {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 18px 28px;
+}
+
+.login-back-link {
+  position: fixed;
+  top: 18px;
+  left: 28px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: var(--transition-fast);
+}
+
+.login-back-link:hover {
+  color: var(--brand-green);
+  transform: translateX(-2px);
+}
+
+@media (max-width: 480px) {
+  .login-back-link {
+    top: 14px;
+    left: 18px;
+  }
+}
+
+/* ---------- Card wrapper (centers whichever step is active) ---------- */
+.login-card-wrapper {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 20px 60px;
+}
+
+.login-step {
+  display: none;
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 36px 32px;
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+  animation: loginStepIn 0.3s ease;
+}
+
+.login-step.is-active {
+  display: block;
+}
+
+@keyframes loginStepIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.login-brand .brand-title {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.login-brand .brand-title span {
+  color: var(--brand-yellow);
+}
+
+.login-step-title {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 6px;
+}
+
+.login-step-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 26px;
+}
+
+/* ---------- Role selection cards ---------- */
+.role-options {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.role-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 4px;
+  width: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+              border-color 0.18s ease,
+              box-shadow 0.18s ease;
+}
+
+.role-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--brand-green);
+  box-shadow: 0 8px 20px var(--brand-green-glow);
+}
+
+.role-card:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.role-icon {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+}
+
+.role-icon-green {
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.role-icon-yellow {
+  background: rgba(250, 204, 21, 0.18);
+}
+
+:root[data-theme="light"] .role-icon-yellow {
+  background: rgba(214, 158, 5, 0.16);
+}
+
+.role-card h3 {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  color: var(--text-main);
+}
+
+.role-card p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* ---------- Back button on form steps ---------- */
+.login-step-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  margin-right: auto;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  margin-bottom: 18px;
+  padding: 0;
+  text-align: left;
+  transition: var(--transition-fast);
+}
+
+.login-step-back:hover {
+  color: var(--brand-green);
+  transform: translateX(-2px);
+}
+
+/* ---------- Role badge on form steps ---------- */
+.login-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.role-badge-green {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: var(--brand-green);
+}
+
+.role-badge-yellow {
+  background: rgba(250, 204, 21, 0.15);
+  border: 1px solid rgba(250, 204, 21, 0.4);
+  color: var(--brand-yellow);
+}
+
+:root[data-theme="light"] .role-badge-yellow {
+  background: rgba(214, 158, 5, 0.14);
+  border-color: rgba(214, 158, 5, 0.4);
+  color: var(--brand-yellow);
+}
+
+/* ---------- Login form ---------- */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.login-submit-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 0.92rem;
+  margin-top: 4px;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.18s ease;
+}
+
+.login-submit-btn:hover {
+  transform: translateY(-2px);
+}
+
+.login-submit-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* ---------- Divider ---------- */
+.login-divider {
+  position: relative;
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.login-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.login-divider span {
+  position: relative;
+  background: var(--bg-card);
+  padding: 0 12px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ---------- Social login buttons ---------- */
+.social-login-row {
+  display: flex;
+  gap: 10px;
+}
+
+.social-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+              border-color 0.18s ease,
+              background 0.18s ease;
+}
+
+.social-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--text-muted);
+  background: var(--bg-card-hover);
+}
+
+.social-btn:active {
+  transform: translateY(0) scale(0.96);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 480px) {
+  .login-step {
+    padding: 28px 20px;
+  }
+  .social-login-row {
+    flex-direction: column;
+  }
+  .social-btn {
+    width: 100%;
+  }
+}
