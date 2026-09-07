@@ -1,0 +1,317 @@
+/* ============================================
+   BlinkList — Intro / Landing Page Styles
+   Loaded only by intro.html, in addition to
+   Style.css (for shared variables, fonts, the
+   logo/theme-toggle, and base button styles —
+   those are intentionally NOT redefined here so
+   this page matches the main app exactly).
+   ============================================ */
+
+.intro-screen {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+  /* Static green + yellow wash so the brand colors read clearly even
+     before the animated blobs are noticed, and so switching theme is
+     obviously visible (colors + base background both flip). */
+  background-image:
+    radial-gradient(circle at 12% 10%, var(--brand-green-glow) 0%, transparent 55%),
+    radial-gradient(circle at 88% 18%, rgba(250, 204, 21, 0.22) 0%, transparent 55%),
+    radial-gradient(circle at 50% 100%, var(--brand-green-glow) 0%, transparent 60%);
+}
+
+:root[data-theme="light"] .intro-screen {
+  background-image:
+    radial-gradient(circle at 12% 10%, var(--brand-green-glow) 0%, transparent 55%),
+    radial-gradient(circle at 88% 18%, rgba(214, 158, 5, 0.2) 0%, transparent 55%),
+    radial-gradient(circle at 50% 100%, var(--brand-green-glow) 0%, transparent 60%);
+}
+
+/* ---------- Animated background blobs (extra motion on top of the wash) ---------- */
+.intro-bg-blobs {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.75;
+  will-change: transform;
+}
+
+.blob-green {
+  width: 46vw;
+  height: 46vw;
+  max-width: 620px;
+  max-height: 620px;
+  top: -12%;
+  left: -10%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.45) 0%, transparent 70%);
+  animation: blobFloatA 16s ease-in-out infinite;
+}
+
+.blob-yellow {
+  width: 40vw;
+  height: 40vw;
+  max-width: 560px;
+  max-height: 560px;
+  top: 8%;
+  right: -12%;
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.4) 0%, transparent 70%);
+  animation: blobFloatB 20s ease-in-out infinite;
+}
+
+:root[data-theme="light"] .blob-yellow {
+  background: radial-gradient(circle, rgba(214, 158, 5, 0.32) 0%, transparent 70%);
+}
+
+.blob-yellow-2 {
+  width: 34vw;
+  height: 34vw;
+  max-width: 460px;
+  max-height: 460px;
+  bottom: -14%;
+  left: 28%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.35) 0%, transparent 70%);
+  animation: blobFloatC 24s ease-in-out infinite;
+}
+
+@keyframes blobFloatA {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(4%, 6%) scale(1.08); }
+}
+
+@keyframes blobFloatB {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-5%, 5%) scale(1.1); }
+}
+
+@keyframes blobFloatC {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(3%, -6%) scale(1.06); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob { animation: none; }
+}
+
+/* ---------- Top bar ---------- */
+.intro-topbar {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 28px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.intro-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ---------- Hero ---------- */
+.intro-hero {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 28px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.intro-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: var(--brand-green);
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin: 0 auto 22px;
+}
+
+.intro-hero-title {
+  width: 100%;
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--text-main);
+  text-align: center;
+  text-wrap: balance;
+  margin: 0 auto 18px;
+}
+
+.intro-hero-title span {
+  background: linear-gradient(135deg, var(--brand-green), var(--brand-yellow));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.intro-hero-subtitle {
+  width: 100%;
+  font-size: 1.02rem;
+  color: var(--text-muted);
+  max-width: 520px;
+  line-height: 1.6;
+  text-align: center;
+  text-wrap: balance;
+  margin: 0 auto 32px;
+}
+
+/* ---------- Buttons: outlined "Clear List" style, recolored, animated ---------- */
+.btn-outline-neutral {
+  background: transparent;
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+}
+.btn-outline-neutral:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--text-muted);
+}
+:root[data-theme="light"] .btn-outline-neutral:hover {
+  background: rgba(15, 23, 42, 0.06);
+}
+
+.btn-outline-accent {
+  background: transparent;
+  color: var(--brand-green);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+.btn-outline-accent:hover {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--brand-green);
+}
+
+.intro-hero .btn-outline-accent {
+  margin-bottom: 40px;
+  padding: 11px 22px;
+  font-size: 0.95rem;
+}
+
+.btn {
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+              filter 0.18s ease,
+              box-shadow 0.18s ease,
+              background 0.18s ease,
+              border-color 0.18s ease;
+}
+
+.intro-topbar-actions .btn:hover,
+.intro-hero .btn:hover {
+  transform: translateY(-2px);
+}
+
+.intro-topbar-actions .btn:active,
+.intro-hero .btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* ---------- Perks card (wraps the feature grid) ---------- */
+.intro-perks-card {
+  width: 100%;
+  background: linear-gradient(160deg, rgba(16, 185, 129, 0.1), rgba(250, 204, 21, 0.07));
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.intro-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+.intro-feature-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px 18px;
+  text-align: left;
+  transition: var(--transition-fast);
+}
+
+.intro-feature-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--brand-green);
+  box-shadow: 0 8px 20px var(--brand-green-glow);
+}
+
+.intro-feature-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  font-size: 1.25rem;
+  margin-bottom: 12px;
+}
+
+.intro-feature-icon.icon-green {
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.intro-feature-icon.icon-yellow {
+  background: rgba(250, 204, 21, 0.18);
+}
+
+:root[data-theme="light"] .intro-feature-icon.icon-yellow {
+  background: rgba(214, 158, 5, 0.16);
+}
+
+.intro-feature-card h3 {
+  font-family: var(--font-heading);
+  font-size: 0.98rem;
+  color: var(--text-main);
+  margin-bottom: 6px;
+}
+
+.intro-feature-card p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 760px) {
+  .intro-feature-grid {
+    grid-template-columns: 1fr;
+  }
+  .intro-topbar {
+    padding: 14px 18px;
+  }
+  .intro-hero {
+    padding: 32px 18px 56px;
+  }
+  .intro-perks-card {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 520px) {
+  .intro-topbar-actions .btn {
+    font-size: 0.82rem;
+    padding: 8px 12px;
+  }
+}
