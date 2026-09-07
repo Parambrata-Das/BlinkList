@@ -1,0 +1,437 @@
+/* ============================================
+   BlinkList — Register Page Styles
+   Loaded only by register.html, in addition to
+   Style.css (for shared variables, fonts, the
+   logo, theme-toggle, buttons, and form-group
+   input styling). Fully self-contained otherwise —
+   does not depend on login.css or intro.css.
+   ============================================ */
+
+.register-screen {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+  background-image:
+    radial-gradient(circle at 15% 15%, var(--brand-green-glow) 0%, transparent 55%),
+    radial-gradient(circle at 85% 85%, rgba(250, 204, 21, 0.2) 0%, transparent 55%);
+}
+
+:root[data-theme="light"] .register-screen {
+  background-image:
+    radial-gradient(circle at 15% 15%, var(--brand-green-glow) 0%, transparent 55%),
+    radial-gradient(circle at 85% 85%, rgba(214, 158, 5, 0.18) 0%, transparent 55%);
+}
+
+/* ---------- Animated background blobs ---------- */
+.register-bg-blobs {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.register-bg-blobs .blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.6;
+  will-change: transform;
+}
+
+.register-bg-blobs .blob-green {
+  width: 40vw;
+  height: 40vw;
+  max-width: 520px;
+  max-height: 520px;
+  top: -10%;
+  right: -8%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.4) 0%, transparent 70%);
+  animation: registerBlobA 18s ease-in-out infinite;
+}
+
+.register-bg-blobs .blob-yellow {
+  width: 34vw;
+  height: 34vw;
+  max-width: 460px;
+  max-height: 460px;
+  bottom: -12%;
+  left: -8%;
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.35) 0%, transparent 70%);
+  animation: registerBlobB 22s ease-in-out infinite;
+}
+
+:root[data-theme="light"] .register-bg-blobs .blob-yellow {
+  background: radial-gradient(circle, rgba(214, 158, 5, 0.28) 0%, transparent 70%);
+}
+
+@keyframes registerBlobA {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-5%, 5%) scale(1.08); }
+}
+
+@keyframes registerBlobB {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(4%, -5%) scale(1.06); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .register-bg-blobs .blob { animation: none; }
+}
+
+/* ---------- Fixed corner controls ---------- */
+.register-back-link {
+  position: fixed;
+  top: 18px;
+  left: 28px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: var(--transition-fast);
+}
+
+.register-back-link:hover {
+  color: var(--brand-green);
+  transform: translateX(-2px);
+}
+
+.register-theme-toggle {
+  position: fixed;
+  top: 14px;
+  right: 28px;
+  z-index: 10;
+}
+
+@media (max-width: 480px) {
+  .register-back-link {
+    top: 14px;
+    left: 18px;
+  }
+  .register-theme-toggle {
+    top: 10px;
+    right: 18px;
+  }
+}
+
+/* ---------- Card wrapper ---------- */
+.register-card-wrapper {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 70px 20px 60px;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 460px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--shadow-sm);
+}
+
+.register-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.register-brand .brand-title {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.register-brand .brand-title span {
+  color: var(--brand-yellow);
+}
+
+/* ---------- Progress indicator ---------- */
+.register-progress {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 28px;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.progress-dot {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition: var(--transition-fast);
+}
+
+.progress-label {
+  font-size: 0.66rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.progress-line {
+  flex: 1;
+  height: 2px;
+  min-width: 16px;
+  background: var(--border-color);
+  margin-top: 13px;
+  transition: var(--transition-fast);
+}
+
+.progress-step.is-active .progress-dot {
+  background: linear-gradient(135deg, var(--brand-green), var(--brand-yellow));
+  border-color: transparent;
+  color: #06231a;
+  box-shadow: var(--shadow-glow);
+}
+
+.progress-step.is-active .progress-label {
+  color: var(--text-main);
+}
+
+.progress-step.is-complete .progress-dot {
+  background: var(--brand-green);
+  border-color: transparent;
+  color: #06231a;
+}
+
+.progress-step.is-complete ~ .progress-line,
+.register-progress .progress-line.is-complete {
+  background: var(--brand-green);
+}
+
+/* ---------- Steps ---------- */
+.register-step {
+  display: none;
+  text-align: center;
+  animation: registerStepIn 0.3s ease;
+}
+
+.register-step.is-active {
+  display: block;
+}
+
+@keyframes registerStepIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.register-step-title {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 6px;
+}
+
+.register-step-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+/* ---------- Forms ---------- */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+
+.register-form textarea {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  color: var(--text-main);
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  outline: none;
+  resize: vertical;
+}
+
+.register-form textarea:focus {
+  border-color: var(--brand-yellow);
+}
+
+.register-submit-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 0.92rem;
+  margin-top: 4px;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.18s ease;
+}
+
+.register-submit-btn:hover {
+  transform: translateY(-2px);
+}
+
+.register-submit-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.register-form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.register-form-actions .register-submit-btn {
+  margin-top: 0;
+}
+
+/* Self-contained outline button (not shared with login.css/intro.css) */
+.btn-outline-neutral {
+  background: transparent;
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  flex: 1;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease, border-color 0.18s ease;
+}
+
+.btn-outline-neutral:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--text-muted);
+  transform: translateY(-2px);
+}
+
+:root[data-theme="light"] .btn-outline-neutral:hover {
+  background: rgba(15, 23, 42, 0.06);
+}
+
+.btn-outline-neutral:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.register-alt-link {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 18px;
+}
+
+.register-alt-link a {
+  color: var(--brand-green);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.register-alt-link a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Divider ---------- */
+.register-divider {
+  position: relative;
+  text-align: center;
+  margin: 20px 0 18px;
+}
+
+.register-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.register-divider span {
+  position: relative;
+  background: var(--bg-card);
+  padding: 0 12px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ---------- Social sign-up buttons ---------- */
+.social-login-row {
+  display: flex;
+  gap: 10px;
+}
+
+.social-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+              border-color 0.18s ease,
+              background 0.18s ease;
+}
+
+.social-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--text-muted);
+  background: var(--bg-card-hover);
+}
+
+.social-btn:active {
+  transform: translateY(0) scale(0.96);
+}
+
+/* ---------- Done step ---------- */
+.register-done-icon {
+  font-size: 2.6rem;
+  margin-bottom: 10px;
+}
+
+.register-done-btn {
+  display: block;
+  text-decoration: none;
+  text-align: center;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 480px) {
+  .register-card {
+    padding: 24px 20px;
+  }
+  .progress-label {
+    display: none;
+  }
+  .register-form-actions {
+    flex-direction: column;
+  }
+}
