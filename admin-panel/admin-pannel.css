@@ -1,0 +1,258 @@
+/* ============================================
+   BlinkList — Admin Panel Styles
+   Loaded only by admin.html, in addition to
+   Style.css (for shared variables, fonts, the
+   header/logo/theme-toggle, buttons, form-group,
+   and modal base styles). The hamburger menu
+   below is defined fully here too — self-
+   contained, not dependent on any block added to
+   Style.css for other pages.
+   ============================================ */
+
+.admin-screen {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, var(--brand-green-glow) 0%, transparent 40%);
+}
+
+/* ---------- Hamburger menu button + dropdown (self-contained) ---------- */
+.admin-menu-wrapper {
+  position: relative;
+}
+
+.admin-menu-btn {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.18s ease, color 0.18s ease;
+}
+
+:root[data-theme="light"] .admin-menu-btn {
+  background: rgba(15, 23, 42, 0.05);
+}
+
+.admin-menu-btn:hover {
+  border-color: var(--brand-yellow);
+  color: var(--brand-yellow);
+  transform: translateY(-1px);
+}
+
+.admin-menu-btn.is-open {
+  border-color: var(--brand-green);
+  color: var(--brand-green);
+}
+
+.admin-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 50;
+  min-width: 190px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+}
+
+.admin-menu-dropdown.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.admin-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 10px;
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.admin-menu-item:hover {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--brand-green);
+}
+
+.admin-menu-icon {
+  font-size: 1rem;
+}
+
+/* ---------- Main content ---------- */
+.admin-main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+}
+
+.admin-welcome {
+  margin-bottom: 24px;
+}
+
+.admin-welcome h2 {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.admin-welcome p {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+
+/* ---------- Custom items card ---------- */
+.admin-custom-items-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.admin-section-header h3 {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  color: var(--text-main);
+}
+
+.admin-item-count-badge {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--brand-yellow);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-glow);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.admin-custom-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-empty-state {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--text-muted);
+}
+
+.admin-empty-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.admin-empty-state p {
+  font-size: 0.86rem;
+}
+
+.admin-item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  transition: var(--transition-fast);
+}
+
+.admin-item-row:hover {
+  border-color: var(--brand-green);
+}
+
+.admin-item-emoji {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.admin-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-item-name {
+  font-weight: 700;
+  color: var(--text-main);
+  font-size: 0.92rem;
+}
+
+.admin-item-meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.admin-item-price {
+  font-weight: 700;
+  color: var(--brand-green);
+  font-size: 0.92rem;
+  white-space: nowrap;
+}
+
+.admin-item-remove-btn {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: var(--radius-sm);
+  color: #ef4444;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.admin-item-remove-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 560px) {
+  .admin-item-row {
+    flex-wrap: wrap;
+  }
+  .admin-menu-dropdown {
+    right: -10px;
+  }
+}
